@@ -1,11 +1,11 @@
-const { Sequelize } = require("sequelize");
-const sq = new Sequelize(process.env.DB_URL);
-const DBConnection = async () => {
+const mongoose = require("mongoose");
+
+const ConnectDb = async () => {
   try {
-    await sq.authenticate();
-    console.log("Database Connected");
+    await mongoose.connect(process.env.DB_URL);
+    console.log("Connected To MongoDB");
   } catch (error) {
-    console.log("Error In Connection of Database", error);
+    console.log(error, "Error In Connection to MongoDB");
   }
 };
-module.exports = { sq, DBConnection };
+module.exports = ConnectDb;

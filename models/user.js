@@ -1,41 +1,69 @@
-const { sq } = require("../configs/db");
-const Datatypes = require("sequelize");
-const User = sq.define("user", {
-  userId: {
-    type: Datatypes.INTEGER,
-    autoIncrement: true,
-    unique: true,
-    primaryKey: true,
-  },
-  userName: {
-    type: Datatypes.STRING,
-    allowNull: false,
+const mongoose = require("mongoose");
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
+const UserSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
   },
   email: {
-    type: Datatypes.STRING,
-    allowNull: false,
+    type: String,
+    required: true,
+    unique: true,
   },
   phone: {
-    type: Datatypes.STRING,
-    allowNull: false,
+    type: String,
+    required: true,
+  },
+  address: {
+    type: String,
+    required: true,
   },
   isVerified: {
-    type: Datatypes.BOOLEAN,
-    defaultValue: false,
-  },
-  stripeId: {
-    type: Datatypes.STRING,
-  },
-  paid: {
-    type: Datatypes.BOOLEAN,
-    defaultValue: false,
+    type: Boolean,
+    default: false,
   },
   password: {
-    type: Datatypes.STRING,
-    allowNull: false,
+    type: String,
+    required: true,
+  },
+  stripeId: {
+    type: String,
   },
 });
-User.sync().then(() => {
-  console.log("User Model has been synced");
+
+UserSchema.methods.generateToken = async function () {
+  return jwt.sign(
+    {
+      id: this._id,
+      name: this.name,
+      email: this.email,
+    },
+    process.env.JWT_KEY,
+    {
+      expiresIn: "10h",
+    }
+  );
+};
+
+UserSchema.pre("save", async function () {
+  try {
+    const genSalt = await bcrypt.genSalt(12);
+    const hashPass = await bcrypt.hash(this.password, genSalt);
+    this.password = hashPass;
+  } catch (error) {
+    console.log("Error in Hashing the password");
+  }
 });
+
+UserSchema.methods.comparePass = async function (password) {
+  try {
+    await bcrypt.compare(password, this.password);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const User = mongoose.model("User", UserSchema);
+
 module.exports = User;
