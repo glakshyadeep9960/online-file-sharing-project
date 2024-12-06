@@ -6,9 +6,10 @@ const port = process.env.PORT;
 const path = require("path");
 const ConnectDb = require("./configs/db");
 const router = require("./routers/user");
+const fileRouter = require("./routers/file");
 
 app.use(express.json());
-
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use(
   cors({
     origin: "*",
@@ -17,16 +18,15 @@ app.use(
   })
 );
 
-app.use("uploads", express.static(path.join(__dirname, "uploads")));
-
 app.get("/", (req, res) => {
   return res.status(200).json({
-    message: "There you go. Backend Caught Running...",
+    message: "There you go. Currently Working on it. Wait!",
   });
 });
 ConnectDb();
 
 app.use("/api/v1/user", router);
+app.use("/api/v1/file", fileRouter);
 app.listen(port, () => {
   console.log(`Server is running on ${port}`);
 });
