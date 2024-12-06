@@ -15,3 +15,5 @@ MongoDB: Database for storing metadata about shared files.
 Multer: Middleware for managing file uploads.
 
 Currently Working on it.
+
+This Code don't include env file and uploads folder ok for security reasons, so you have to create a env file with your own mongo url configurations, email configurations for nodemailer and have to create a uploads folder in root directory so that uploaded images can reside there.
